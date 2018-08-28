@@ -12,7 +12,7 @@
 # 
 # ### Install Packages
 
-# In[23]:
+# In[1]:
 
 
 import sys
@@ -21,7 +21,7 @@ get_ipython().system('{sys.executable} -m pip install -r requirements.txt')
 
 # ### Load Packages
 
-# In[24]:
+# In[2]:
 
 
 import pandas as pd
@@ -35,7 +35,7 @@ import project_tests
 # ### Load Data
 # The data we use for most of the projects is end of day data. This contains data for many stocks, but we'll be looking at stocks in the S&P 500. We also made things a little easier to run by narrowing down our range of time period instead of using all of the data.
 
-# In[25]:
+# In[3]:
 
 
 df = pd.read_csv('../../data/project_1/eod-quotemedia.csv', parse_dates=['date'], index_col=False)
@@ -48,7 +48,7 @@ print('Loaded Data')
 # ### View Data
 # Run the cell below to see what the data looks like for `close`.
 
-# In[26]:
+# In[4]:
 
 
 project_helper.print_dataframe(close)
@@ -57,7 +57,7 @@ project_helper.print_dataframe(close)
 # ### Stock Example
 # Let's see what a single stock looks like from the closing prices. For this example and future display examples in this project, we'll use Apple's stock (AAPL). If we tried to graph all the stocks, it would be too much information.
 
-# In[27]:
+# In[5]:
 
 
 apple_ticker = 'AAPL'
@@ -70,7 +70,7 @@ project_helper.plot_stock(close[apple_ticker], '{} Stock'.format(apple_ticker))
 # 
 # Implement the `resample_prices` to resample `close_prices` at the sampling frequency of `freq`.
 
-# In[28]:
+# In[6]:
 
 
 def resample_prices(close_prices, freq='M'):
@@ -100,7 +100,7 @@ project_tests.test_resample_prices(resample_prices)
 # ### View Data
 # Let's apply this function to `close` and view the results.
 
-# In[29]:
+# In[7]:
 
 
 monthly_close = resample_prices(close)
@@ -118,7 +118,7 @@ project_helper.plot_resampled_prices(
 # 
 # Implement the `compute_log_returns` function below, such that it accepts a dataframe (like one returned by `resample_prices`), and produces a similar dataframe of log returns. Use Numpy's [log function](https://docs.scipy.org/doc/numpy/reference/generated/numpy.log.html) to help you calculate the log returns.
 
-# In[30]:
+# In[8]:
 
 
 def compute_log_returns(prices):
@@ -146,7 +146,7 @@ project_tests.test_compute_log_returns(compute_log_returns)
 # ### View Data
 # Using the same data returned from `resample_prices`, we'll generate the log returns.
 
-# In[31]:
+# In[9]:
 
 
 monthly_close_returns = compute_log_returns(monthly_close)
@@ -191,7 +191,7 @@ project_helper.plot_returns(
 # ```
 # _Note: The "..." represents data points we're not showing._
 
-# In[32]:
+# In[10]:
 
 
 def shift_returns(returns, shift_n):
@@ -220,7 +220,7 @@ project_tests.test_shift_returns(shift_returns)
 # ### View Data
 # Let's get the previous month's and next month's returns.
 
-# In[33]:
+# In[11]:
 
 
 prev_returns = shift_returns(monthly_close_returns, 1)
@@ -264,7 +264,7 @@ project_helper.plot_shifted_returns(
 # ```
 # *Note: You may have to use Panda's [`DataFrame.iterrows`](https://pandas.pydata.org/pandas-docs/version/0.21/generated/pandas.DataFrame.iterrows.html) with [`Series.nlargest`](https://pandas.pydata.org/pandas-docs/version/0.21/generated/pandas.Series.nlargest.html) in order to implement the function. This is one of those cases where creating a vecorization solution is too difficult.*
 
-# In[145]:
+# In[12]:
 
 
 def get_top_n(prev_returns, top_n):
@@ -300,7 +300,7 @@ project_tests.test_get_top_n(get_top_n)
 # ### View Data
 # We want to get the best performing and worst performing stocks. To get the best performing stocks, we'll use the `get_top_n` function. To get the worst performing stocks, we'll also use the `get_top_n` function. However, we pass in `-1*prev_returns` instead of just `prev_returns`. Multiplying by negative one will flip all the positive returns to negative and negative returns to positive. Thus, it will return the worst performing stocks.
 
-# In[146]:
+# In[13]:
 
 
 top_bottom_n = 50
@@ -317,7 +317,7 @@ project_helper.print_top(df_short, 'Shorted Stocks')
 # 
 # Implement the `portfolio_returns` function to compute the expected portfolio returns. Using `df_long` to indicate which stocks to long and `df_short` to indicate which stocks to short, calculate the returns using `lookahead_returns`. To help with calculation, we've provided you with `n_stocks` as the number of stocks we're investing in a single period.
 
-# In[ ]:
+# In[16]:
 
 
 def portfolio_returns(df_long, df_short, lookahead_returns, n_stocks):
@@ -342,7 +342,9 @@ def portfolio_returns(df_long, df_short, lookahead_returns, n_stocks):
     """
     # TODO: Implement Function
     
-    return None
+    portfolio_returns = lookahead_returns * (df_long - df_short)
+    
+    return portfolio_returns/n_stocks
 
 project_tests.test_portfolio_returns(portfolio_returns)
 
@@ -350,7 +352,7 @@ project_tests.test_portfolio_returns(portfolio_returns)
 # ### View Data
 # Time to see how the portfolio did.
 
-# In[ ]:
+# In[17]:
 
 
 expected_portfolio_returns = portfolio_returns(df_long, df_short, lookahead_returns, 2*top_bottom_n)
@@ -360,7 +362,7 @@ project_helper.plot_returns(expected_portfolio_returns.T.sum(), 'Portfolio Retur
 # ## Statistical Tests
 # ### Annualized Rate of Return
 
-# In[ ]:
+# In[18]:
 
 
 expected_portfolio_returns_by_date = expected_portfolio_returns.T.sum().dropna()
@@ -388,7 +390,7 @@ Annualized Rate of Return:  {:.2f}%
 # 
 # Note: [`scipy.stats.ttest_1samp`](https://docs.scipy.org/doc/scipy-1.0.0/reference/generated/scipy.stats.ttest_1samp.html) performs a two-sided test, so divide the p-value by 2 to get 1-sided p-value
 
-# In[ ]:
+# In[19]:
 
 
 from scipy import stats
@@ -411,7 +413,10 @@ def analyze_alpha(expected_portfolio_returns_by_date):
     """
     # TODO: Implement Function
 
-    return None
+    null_hypothesis =0.0
+    t_stat,p_val = stats.ttest_1samp(expected_portfolio_returns_by_date,null_hypothesis)
+    
+    return  t_stat,p_val/2
 
 project_tests.test_analyze_alpha(analyze_alpha)
 
@@ -419,7 +424,7 @@ project_tests.test_analyze_alpha(analyze_alpha)
 # ### View Data
 # Let's see what values we get with our portfolio. After you run this, make sure to answer the question below.
 
-# In[ ]:
+# In[20]:
 
 
 t_value, p_value = analyze_alpha(expected_portfolio_returns_by_date)
@@ -432,7 +437,7 @@ Alpha analysis:
 
 # ### Question: What p-value did you observe? And what does that indicate about your signal?
 
-# *#TODO: Put Answer In this Cell*
+# p_value obtained was 0.073359 which is greater then 0.05(typical value used for comparing the probability). We can say that the alpha signal is provisionally significant but we cannot conclude that a significant diffirence exits.
 
 # ## Submission
 # Now that you're done with the project, it's time to submit it. Click the submit button in the bottom right. One of our reviewers will give you feedback on your project with a pass or not passed grade. You can continue to the next section while you wait for feedback.

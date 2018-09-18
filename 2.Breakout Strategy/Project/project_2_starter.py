@@ -92,7 +92,7 @@ close
 # ## Compute the Highs and Lows in a Window
 # You'll use the price highs and lows as an indicator for the breakout strategy. In this section, implement `get_high_lows_lookback` to get the maximum high price and minimum low price over a window of days. The variable `lookback_days` contains the number of days to look in the past. Make sure this doesn't include the current day.
 
-# In[6]:
+# In[34]:
 
 
 def get_high_lows_lookback(high, low, lookback_days):
@@ -118,6 +118,7 @@ def get_high_lows_lookback(high, low, lookback_days):
     #TODO: Implement function
     high_shift = high.shift(1)
     low_shift = low.shift(1)
+    print(high_shift.rolling(window = lookback_days).max())
     return high_shift.rolling(window = lookback_days).max(),low_shift.rolling(window =lookback_days).min()
 
 project_tests.test_get_high_lows_lookback(get_high_lows_lookback)
@@ -126,7 +127,7 @@ project_tests.test_get_high_lows_lookback(get_high_lows_lookback)
 # ### View Data
 # Let's use your implementation of `get_high_lows_lookback` to get the highs and lows for the past 50 days and compare it to it their respective stock.  Just like last time, we'll use Apple's stock as the example to look at.
 
-# In[7]:
+# In[6]:
 
 
 lookback_days = 50
@@ -149,7 +150,7 @@ project_helper.plot_high_low(
 # 
 # In this chart, **Close Price** is the `close` parameter. **Low** and **High** are the values generated from `get_high_lows_lookback`, the `lookback_high` and `lookback_low` parameters.
 
-# In[37]:
+# In[33]:
 
 
 def get_long_short(close, lookback_high, lookback_low):
@@ -182,7 +183,7 @@ project_tests.test_get_long_short(get_long_short)
 # ### View Data
 # Let's compare the signals you generated against the close prices. This chart will show a lot of signals. Too many in fact. We'll talk about filtering the redundant signals in the next problem. 
 
-# In[9]:
+# In[8]:
 
 
 signal = get_long_short(close, lookback_high, lookback_low)
@@ -215,7 +216,7 @@ project_helper.plot_signal(
 # 
 # For implementing `filter_signals`, we don't reccommend you try to find a vectorized solution. Instead, you should use the [`iterrows`](https://pandas.pydata.org/pandas-docs/version/0.21/generated/pandas.DataFrame.iterrows.html) over each column.
 
-# In[10]:
+# In[9]:
 
 
 def clear_signals(signals, window_size):
@@ -287,7 +288,7 @@ project_tests.test_filter_signals(filter_signals)
 # ### View Data
 # Let's view the same chart as before, but with the redundant signals removed.
 
-# In[11]:
+# In[10]:
 
 
 signal_5 = filter_signals(signal, 5)
@@ -303,7 +304,7 @@ for signal_data, signal_days in [(signal_5, 5), (signal_10, 10), (signal_20, 20)
 # ## Lookahead Close Prices
 # With the trading signal done, we can start working on evaluating how many days to short or long the stocks. In this problem, implement `get_lookahead_prices` to get the close price days ahead in time. You can get the number of days from the variable `lookahead_days`. We'll use the lookahead prices to calculate future returns in another problem.
 
-# In[38]:
+# In[11]:
 
 
 def get_lookahead_prices(close, lookahead_days):
@@ -336,7 +337,7 @@ project_tests.test_get_lookahead_prices(get_lookahead_prices)
 # 
 # Let's also chart a subsection of a few months of the Apple stock instead of years. This will allow you to view the differences between the 5, 10, and 20 day lookaheads. Otherwise, they will mesh together when looking at a chart that is zoomed out.
 
-# In[13]:
+# In[12]:
 
 
 lookahead_5 = get_lookahead_prices(close, 5)
@@ -354,7 +355,7 @@ project_helper.plot_lookahead_prices(
 # ## Lookahead Price Returns
 # Implement `get_return_lookahead` to generate the log price return between the closing price and the lookahead price.
 
-# In[14]:
+# In[13]:
 
 
 def get_return_lookahead(close, lookahead_prices):
@@ -387,7 +388,7 @@ project_tests.test_get_return_lookahead(get_return_lookahead)
 # 
 # In order to view price returns on the same chart as the stock, a second y-axis will be added. When viewing this chart, the axis for the price of the stock will be on the left side, like previous charts. The axis for price returns will be located on the right side.
 
-# In[15]:
+# In[14]:
 
 
 price_return_5 = get_return_lookahead(close, lookahead_5)
@@ -405,7 +406,7 @@ project_helper.plot_price_returns(
 # ## Compute the Signal Return
 # Using the price returns generate the signal returns.
 
-# In[16]:
+# In[15]:
 
 
 def get_signal_return(signal, lookahead_returns):
@@ -436,7 +437,7 @@ project_tests.test_get_signal_return(get_signal_return)
 # ### View Data
 # Let's continue using the previous lookahead prices to view the signal returns. Just like before, the axis for the signal returns is on the right side of the chart.
 
-# In[17]:
+# In[16]:
 
 
 title_string = '{} day LookaheadSignal Returns for {} Stock'
@@ -456,7 +457,7 @@ project_helper.plot_signal_returns(
 # ### Histogram
 # Let's plot a histogram of the signal return values.
 
-# In[18]:
+# In[17]:
 
 
 project_helper.plot_signal_histograms(
@@ -472,13 +473,13 @@ project_helper.plot_signal_histograms(
 # In[ ]:
 
 
-the significance of the signal return obtained and visualizes the distribution to highlight the presence of outliers
+the significance of the signal return obtained and visualizes the distribution to highlight the presence of outliers. Here the outliers are found on quantiles above zero. Towards the right of the 10 day and 20 day histogram.
 
 
 # ## Outliers
 # You might have noticed the outliers in the 10 and 20 day histograms. To better visualize the outliers, let's compare the 5, 10, and 20 day signals returns to normal distributions with the same mean and deviation for each signal return distributions.
 
-# In[19]:
+# In[18]:
 
 
 project_helper.plot_signal_to_normal_histograms(
@@ -490,7 +491,7 @@ project_helper.plot_signal_to_normal_histograms(
 # ## Kolmogorov-Smirnov Test
 # While you can see the outliers in the histogram, we need to find the stocks that are causing these outlying returns. We'll use the Kolmogorov-Smirnov Test or KS-Test. This test will be applied to teach ticker's signal returns where a long or short signal exits.
 
-# In[20]:
+# In[19]:
 
 
 # Filter out returns that don't have a long or short signal.
@@ -516,7 +517,7 @@ long_short_signal_returns_5.head(10)
 # 
 # For this function, we don't reccommend you try to find a vectorized solution. Instead, you should iterate over the [`groupby`](https://pandas.pydata.org/pandas-docs/version/0.21/generated/pandas.DataFrame.groupby.html) function.
 
-# In[28]:
+# In[20]:
 
 
 from scipy.stats import kstest
@@ -564,7 +565,7 @@ project_tests.test_calculate_kstest(calculate_kstest)
 # ### View Data
 # Using the signal returns we created above, let's calculate the ks and p values.
 
-# In[29]:
+# In[21]:
 
 
 ks_values_5, p_values_5 = calculate_kstest(long_short_signal_returns_5)
@@ -582,7 +583,7 @@ print(p_values_5.head(10))
 # - Symbols that pass the null hypothesis with a p-value less than `pvalue_threshold`.
 # - Symbols that with a KS value above `ks_threshold`.
 
-# In[34]:
+# In[31]:
 
 
 def find_outliers(ks_values, p_values, ks_threshold, pvalue_threshold=0.05):
@@ -606,12 +607,13 @@ def find_outliers(ks_values, p_values, ks_threshold, pvalue_threshold=0.05):
         Symbols that are outliers
     """
     #TODO: Implement function
-    ks_list = ks_values.index[ks_values > ks_threshold].tolist()
-    p_list = p_values.index[p_values < pvalue_threshold].tolist()
+    ks_list = set(ks_values.index[ks_values > ks_threshold].tolist())
+    p_list = set(p_values.index[p_values < pvalue_threshold].tolist())
     
-    outliers = ks_list + p_list
+    outliers = ks_list & p_list
+    
         
-    return set(outliers)
+    return outliers
 
 
 project_tests.test_find_outliers(find_outliers)
@@ -620,7 +622,7 @@ project_tests.test_find_outliers(find_outliers)
 # ### View Data
 # Using the `find_outliers` function you implemented, let's see what we found.
 
-# In[35]:
+# In[23]:
 
 
 ks_threshold = 0.8
@@ -635,7 +637,7 @@ print('{} Outliers Found:\n{}'.format(len(outlier_tickers), ', '.join(list(outli
 # ### Show Significance without Outliers
 # Let's compare the 5, 10, and 20 day signals returns without outliers to normal distributions. Also, let's see how the P-Value has changed with the outliers removed.
 
-# In[36]:
+# In[24]:
 
 
 good_tickers = list(set(close.columns) - outlier_tickers)
